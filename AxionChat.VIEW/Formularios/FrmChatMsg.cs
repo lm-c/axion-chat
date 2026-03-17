@@ -72,6 +72,9 @@ namespace AxionChat.VIEW {
 
     private void FrmChatMsg_Load(object sender, EventArgs e) {
       
+      tmr.Interval = 600000; // 10 minutos
+      tmr.Enabled = true;
+
       // Técnica para ocultar a barra de rolagem mas manter a funcionalidade
       // Move o flpChat para a direita para esconder a barra vertical
       // Requer que o flpChat esteja dentro de um container (panel2)
@@ -643,6 +646,27 @@ namespace AxionChat.VIEW {
       } finally {
         tmrMessages.Enabled = true;
       }
+    }
+
+    private void Tmr_Tick(object sender, EventArgs e) {
+      try {
+        string remotePath = @"E:\Engenharia\addin\SETUP ADDIN\axion-chat\AxionChat.exe";
+        if (File.Exists(remotePath)) {
+          var remoteVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(remotePath);
+          
+          Version localVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+          
+          if (Version.TryParse(remoteVersionInfo.FileVersion, out Version remoteVersion)) {
+            if (localVersion < remoteVersion) {
+              string installerPath = @"E:\Engenharia\addin\SETUP ADDIN\axion-chat-install.bat";
+              if (File.Exists(installerPath)) {
+                System.Diagnostics.Process.Start(installerPath);
+                Application.Exit();
+              }
+            }
+          }
+        }
+      } catch { }
     }
   }
 }

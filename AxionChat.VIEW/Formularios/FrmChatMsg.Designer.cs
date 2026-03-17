@@ -35,6 +35,7 @@
       this.lblConversaCom = new LmCorbieUI.Controls.LmLabel();
       this.pnlMain = new System.Windows.Forms.Panel();
       this.tmrMessages = new System.Windows.Forms.Timer(this.components);
+      this.tmr = new System.Windows.Forms.Timer(this.components);
       this.pnlRodapeMensagm.SuspendLayout();
       this.pnlMain.SuspendLayout();
       this.SuspendLayout();
@@ -202,6 +203,12 @@
       this.tmrMessages.Interval = 3000;
       this.tmrMessages.Tick += new System.EventHandler(this.TmrMessages_Tick);
       // 
+      // tmr
+      // 
+      this.tmr.Interval = 1000;
+      this.tmr.Tag = "3";
+      this.tmr.Tick += new System.EventHandler(this.Tmr_Tick);
+      // 
       // FrmChatMsg
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -232,6 +239,7 @@
     private LmCorbieUI.Controls.LmLabel lblConversaCom;
     private System.Windows.Forms.Label lblClose;
     private System.Windows.Forms.Timer tmrMessages;
+    private System.Windows.Forms.Timer tmr;
   }
 }
 
