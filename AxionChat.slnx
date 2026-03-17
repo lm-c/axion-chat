@@ -4,7 +4,7 @@
     <Platform Name="ARM64" />
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="../00_CLIENTES/addin-tgm/AddinTGM.CORE/AddinTGM.CORE.csproj" Id="4b0b7534-19d4-4557-b116-432a8e4e714c">
+  <Project Path="../addin-tgm/AddinTGM.CORE/AddinTGM.CORE.csproj" Id="4b0b7534-19d4-4557-b116-432a8e4e714c">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
   <Project Path="AxionChat.VIEW/AxionChat.VIEW.csproj" Id="6ec1579c-80e8-444c-8492-8c929c5066f2" />

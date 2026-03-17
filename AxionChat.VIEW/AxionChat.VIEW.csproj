@@ -142,7 +142,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\00_CLIENTES\addin-tgm\AddinTGM.CORE\AddinTGM.CORE.csproj">
+    <ProjectReference Include="..\..\addin-tgm\AddinTGM.CORE\AddinTGM.CORE.csproj">
       <Project>{4b0b7534-19d4-4557-b116-432a8e4e714c}</Project>
       <Name>AddinTGM.CORE</Name>
     </ProjectReference>

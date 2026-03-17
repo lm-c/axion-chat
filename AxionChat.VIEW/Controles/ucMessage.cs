@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using AddinTGM.CORE;
 using LmCorbieUI;
-using LmCorbieUI.Metodos;
 
 namespace AxionChat.VIEW.Controles {
   public partial class ucMessage : UserControl {

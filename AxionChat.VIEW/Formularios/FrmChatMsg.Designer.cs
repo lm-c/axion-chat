@@ -33,10 +33,10 @@
       this.btnSendMessage = new LmCorbieUI.Controls.LmButton();
       this.txtMensagem = new LmCorbieUI.Controls.LmTextBox();
       this.lblConversaCom = new LmCorbieUI.Controls.LmLabel();
-      this.panel2 = new System.Windows.Forms.Panel();
+      this.pnlMain = new System.Windows.Forms.Panel();
       this.tmrMessages = new System.Windows.Forms.Timer(this.components);
       this.pnlRodapeMensagm.SuspendLayout();
-      this.panel2.SuspendLayout();
+      this.pnlMain.SuspendLayout();
       this.SuspendLayout();
       // 
       // flpChat
@@ -46,7 +46,7 @@
       this.flpChat.FlowDirection = System.Windows.Forms.FlowDirection.BottomUp;
       this.flpChat.Location = new System.Drawing.Point(0, 0);
       this.flpChat.Name = "flpChat";
-      this.flpChat.Size = new System.Drawing.Size(356, 554); // Largura maior que o pai para esconder scroll
+      this.flpChat.Size = new System.Drawing.Size(356, 554);
       this.flpChat.TabIndex = 1;
       this.flpChat.WrapContents = false;
       // 
@@ -184,17 +184,17 @@
       this.lblConversaCom.Text = "Para: Leonardo Michalak";
       this.lblConversaCom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
-      // panel2
+      // pnlMain
       // 
-      this.panel2.BackColor = System.Drawing.Color.Magenta;
-      this.panel2.Controls.Add(this.flpChat);
-      this.panel2.Controls.Add(this.pnlRodapeMensagm);
-      this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.panel2.Location = new System.Drawing.Point(0, 0);
-      this.panel2.Margin = new System.Windows.Forms.Padding(0);
-      this.panel2.Name = "panel2";
-      this.panel2.Size = new System.Drawing.Size(336, 630);
-      this.panel2.TabIndex = 8;
+      this.pnlMain.BackColor = System.Drawing.Color.Magenta;
+      this.pnlMain.Controls.Add(this.flpChat);
+      this.pnlMain.Controls.Add(this.pnlRodapeMensagm);
+      this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.pnlMain.Location = new System.Drawing.Point(0, 0);
+      this.pnlMain.Margin = new System.Windows.Forms.Padding(0);
+      this.pnlMain.Name = "pnlMain";
+      this.pnlMain.Size = new System.Drawing.Size(336, 630);
+      this.pnlMain.TabIndex = 8;
       // 
       // tmrMessages
       // 
@@ -207,7 +207,7 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(336, 630);
-      this.Controls.Add(this.panel2);
+      this.Controls.Add(this.pnlMain);
       this.Location = new System.Drawing.Point(0, 0);
       this.Name = "FrmChatMsg";
       this.Padding = new System.Windows.Forms.Padding(0);
@@ -215,7 +215,7 @@
       this.Text = "Chat";
       this.pnlRodapeMensagm.ResumeLayout(false);
       this.pnlRodapeMensagm.PerformLayout();
-      this.panel2.ResumeLayout(false);
+      this.pnlMain.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -227,7 +227,7 @@
     private LmCorbieUI.Controls.LmTextBox txtMensagem;
     private LmCorbieUI.Controls.LmButton btnSendMessage;
     private LmCorbieUI.Controls.LmButton btnSelectUser;
-    private System.Windows.Forms.Panel panel2;
+    private System.Windows.Forms.Panel pnlMain;
     private System.Windows.Forms.Panel panel3;
     private LmCorbieUI.Controls.LmLabel lblConversaCom;
     private System.Windows.Forms.Label lblClose;

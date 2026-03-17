@@ -9,10 +9,17 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace AxionChat.VIEW {
   public partial class FrmChatMsg : LmSingleForm {
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    static extern bool FlashWindow(IntPtr hwnd, bool bInvert);
+
     private NotifyIcon notifyIcon;
     private ContextMenuStrip contextMenu;
 
@@ -35,7 +42,7 @@ namespace AxionChat.VIEW {
       }
 
       this.Load += FrmChatMsg_Load;
-      txtMensagem.TextChanged += TxtMensagem_TextChanged;
+      //txtMensagem.TextChanged += TxtMensagem_TextChanged;
 
       InitializeTray();
       InicializarBotaoVerMais();
@@ -75,7 +82,7 @@ namespace AxionChat.VIEW {
       
       // Ajuste fino: Aumentar a largura do FLP para empurrar a scrollbar para fora da visão
       // Assumindo que o panel2 (pai) tem AutoScroll = false e Clip
-      flpChat.Width = panel2.Width + SystemInformation.VerticalScrollBarWidth;
+      flpChat.Width = pnlMain.Width + SystemInformation.VerticalScrollBarWidth;
       flpChat.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
       // Posicionar no lado direito ocupando 100% da altura
@@ -535,7 +542,7 @@ namespace AxionChat.VIEW {
       // Se a altura mudou, aplica
       if (pnlRodapeMensagm.Height != newHeight) {
         pnlRodapeMensagm.Height = newHeight;
-        // Ajusta a posição Y do topo se necessário (embora o Dock Bottom deva cuidar disso)
+        flpChat.Height = pnlMain.Height - newHeight;
       }
     }
 
@@ -592,6 +599,20 @@ namespace AxionChat.VIEW {
 
               string nomeRemetente = msg.remetente != null ? msg.remetente.nome : "Desconhecido";
 
+              bool formAtivo = false;
+              try {
+                // Verifica se esta janela é a janela em primeiro plano no Windows
+                IntPtr foregroundHwnd = GetForegroundWindow();
+                formAtivo = (foregroundHwnd == this.Handle);
+                
+                // Se não for a própria janela, verifica se é alguma janela filha aberta por ela (ex: emoji, consulta)
+                if (!formAtivo && Form.ActiveForm != null) {
+                  if (Form.ActiveForm == this || Form.ActiveForm.Owner == this) {
+                    formAtivo = true;
+                  }
+                }
+              } catch { }
+
               // Cenário 1: Chat aberto com o remetente da mensagem
               if (this.Visible && this.WindowState != FormWindowState.Minimized && _idUsuarioDestino == msg.id_remetente) {
                 // Marca como lida
@@ -600,11 +621,18 @@ namespace AxionChat.VIEW {
 
                 // Renderiza a mensagem no chat
                 AdicionarMensagemVisual(msg, false, noTopo: true);
+
+                // Se a tela está visível mas por trás de outras janelas, mostrar alerta e piscar
+                if (!formAtivo) {
+                  Toast.Info($"Nova mensagem de {nomeRemetente} \r\n\r\n\"{msg.mensagem}\"", autoClose: false);
+                  FlashWindow(this.Handle, true);
+                }
               } 
               // Cenário 2: Chat fechado, minimizado ou aberto com outro usuário
               else {
                 // Mostrar notificação na tela
                 Toast.Info($"Nova mensagem de {nomeRemetente} \r\n\r\n\"{msg.mensagem}\"", autoClose: false);
+                FlashWindow(this.Handle, true);
               }
             }
             db.SaveChanges();
