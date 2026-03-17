@@ -33,7 +33,7 @@ namespace AxionChat.VIEW {
 
     public FrmChatMsg() {
       InitializeComponent();
-      
+
       lblConversaCom.Text = string.Empty;
 
       string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "axion-chat-icon.ico");
@@ -71,18 +71,15 @@ namespace AxionChat.VIEW {
     }
 
     private void FrmChatMsg_Load(object sender, EventArgs e) {
-      
-      tmr.Interval = 600000; // 10 minutos
-      tmr.Enabled = true;
 
       // Técnica para ocultar a barra de rolagem mas manter a funcionalidade
       // Move o flpChat para a direita para esconder a barra vertical
       // Requer que o flpChat esteja dentro de um container (panel2)
-      
+
       flpChat.AutoScroll = true;
       flpChat.VerticalScroll.Visible = false; // Tenta ocultar nativamente
       flpChat.HorizontalScroll.Visible = false;
-      
+
       // Ajuste fino: Aumentar a largura do FLP para empurrar a scrollbar para fora da visão
       // Assumindo que o panel2 (pai) tem AutoScroll = false e Clip
       flpChat.Width = pnlMain.Width + SystemInformation.VerticalScrollBarWidth;
@@ -348,11 +345,11 @@ namespace AxionChat.VIEW {
             }
 
             // Se for a primeira carga (skip 0), limpamos tudo
-      if (skip == 0) {
-        if (mensagens.Any())
-          _idUltimaMensagemRecebida = mensagens.Max(m => m.id);
+            if (skip == 0) {
+              if (mensagens.Any())
+                _idUltimaMensagemRecebida = mensagens.Max(m => m.id);
 
-        flpChat.Controls.Clear();
+              flpChat.Controls.Clear();
               _mensagensCarregadas = 0;
 
               // Carrega mensagens do mais recente para o mais antigo, inserindo no topo
@@ -433,8 +430,8 @@ namespace AxionChat.VIEW {
       // Ajustar largura descontando a barra de rolagem (que está visível)
       // Reduzimos um pouco mais para garantir que não gere scroll horizontal (30px de folga)
       int scrollWidth = SystemInformation.VerticalScrollBarWidth;
-      uc.Width = flpChat.Width - scrollWidth - 50; 
-      
+      uc.Width = flpChat.Width - scrollWidth - 50;
+
       // Ajuste de margens para efeito visual "Esquerda/Direita"
       if (enviadaPorMim) {
         // Mensagem minha: Mais à direita (Margin Left maior)
@@ -503,7 +500,7 @@ namespace AxionChat.VIEW {
         flpChat.Controls.SetChildIndex(uc, 0);
         // Forçar scroll para o final
         flpChat.ScrollControlIntoView(uc);
-      } 
+      }
     }
 
     private void TxtMensagem_KeyDown(object sender, KeyEventArgs e) {
@@ -607,7 +604,7 @@ namespace AxionChat.VIEW {
                 // Verifica se esta janela é a janela em primeiro plano no Windows
                 IntPtr foregroundHwnd = GetForegroundWindow();
                 formAtivo = (foregroundHwnd == this.Handle);
-                
+
                 // Se não for a própria janela, verifica se é alguma janela filha aberta por ela (ex: emoji, consulta)
                 if (!formAtivo && Form.ActiveForm != null) {
                   if (Form.ActiveForm == this || Form.ActiveForm.Owner == this) {
@@ -630,7 +627,7 @@ namespace AxionChat.VIEW {
                   Toast.Info($"Nova mensagem de {nomeRemetente} \r\n\r\n\"{msg.mensagem}\"", autoClose: false);
                   FlashWindow(this.Handle, true);
                 }
-              } 
+              }
               // Cenário 2: Chat fechado, minimizado ou aberto com outro usuário
               else {
                 // Mostrar notificação na tela
@@ -653,14 +650,15 @@ namespace AxionChat.VIEW {
         string remotePath = @"E:\Engenharia\addin\SETUP ADDIN\axion-chat\AxionChat.exe";
         if (File.Exists(remotePath)) {
           var remoteVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(remotePath);
-          
+
           Version localVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-          
+
           if (Version.TryParse(remoteVersionInfo.FileVersion, out Version remoteVersion)) {
             if (localVersion < remoteVersion) {
               string installerPath = @"E:\Engenharia\addin\SETUP ADDIN\axion-chat-install.bat";
               if (File.Exists(installerPath)) {
                 System.Diagnostics.Process.Start(installerPath);
+                if (notifyIcon != null) notifyIcon.Visible = false;
                 Application.Exit();
               }
             }

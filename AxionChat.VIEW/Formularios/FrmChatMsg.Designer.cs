@@ -205,8 +205,9 @@
       // 
       // tmr
       // 
-      this.tmr.Interval = 1000;
-      this.tmr.Tag = "3";
+      this.tmr.Enabled = true;
+      this.tmr.Interval = 10000;
+      this.tmr.Tag = "";
       this.tmr.Tick += new System.EventHandler(this.Tmr_Tick);
       // 
       // FrmChatMsg
