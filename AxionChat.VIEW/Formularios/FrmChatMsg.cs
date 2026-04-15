@@ -30,6 +30,7 @@ namespace AxionChat.VIEW {
     private LmLabel _btnVerMais;
 
     private int _idUltimaMensagemRecebida = 0;
+    private int _idUltimoRemetenteNotificado = 0;
 
     public FrmChatMsg() {
       InitializeComponent();
@@ -46,6 +47,53 @@ namespace AxionChat.VIEW {
 
       InitializeTray();
       InicializarBotaoVerMais();
+    }
+
+    private void ScrollChatParaOFim() {
+      if (flpChat == null || flpChat.IsDisposed) return;
+      if (flpChat.Controls.Count == 0) return;
+
+      Control alvo = flpChat.FlowDirection == FlowDirection.BottomUp
+        ? flpChat.Controls[0]
+        : flpChat.Controls[flpChat.Controls.Count - 1];
+
+      if (alvo == null || alvo.IsDisposed) return;
+
+      if (flpChat.IsHandleCreated) {
+        flpChat.BeginInvoke(new Action(() => {
+          if (flpChat.IsDisposed || alvo.IsDisposed) return;
+          flpChat.ScrollControlIntoView(alvo);
+        }));
+      } else {
+        flpChat.ScrollControlIntoView(alvo);
+      }
+    }
+
+    private void AtualizarIndicadorNaoLidas(ContextoDados db, int meuId) {
+      if (notifyIcon == null) return;
+      try {
+        int totalNaoLidas = db.chat_msg.Count(m => !m.excluida && !m.lida && m.id_destinatario == meuId);
+        notifyIcon.Text = totalNaoLidas > 0 ? $"Axion Chat ({totalNaoLidas} novas)" : "Axion Chat";
+      } catch {
+        notifyIcon.Text = "Axion Chat";
+      }
+    }
+
+    private void NotificarMensagemNova(string nomeRemetente, string mensagem, int idRemetente, bool mostrarNoTray) {
+      _idUltimoRemetenteNotificado = idRemetente;
+
+      string texto = $"Nova mensagem de {nomeRemetente} \r\n\r\n\"{mensagem}\"";
+      Toast.Info(texto, autoClose: false);
+
+      if (mostrarNoTray && notifyIcon != null) {
+        try {
+          notifyIcon.BalloonTipTitle = $"Nova mensagem de {nomeRemetente}";
+          notifyIcon.BalloonTipText = mensagem;
+          notifyIcon.ShowBalloonTip(5000);
+        } catch { }
+      }
+
+      FlashWindow(this.Handle, true);
     }
 
     private void InicializarBotaoVerMais() {
@@ -168,6 +216,36 @@ namespace AxionChat.VIEW {
           ShowForm();
         }
       };
+
+      notifyIcon.BalloonTipClicked += (s, e) => {
+        ShowForm();
+        if (_idUltimoRemetenteNotificado > 0) {
+          AbrirConversa(_idUltimoRemetenteNotificado);
+        }
+      };
+    }
+
+    private void AbrirConversa(int idUsuario) {
+      try {
+        using (var db = new ContextoDados()) {
+          var usuario = db.usuarios.FirstOrDefault(u => u.id == idUsuario);
+          if (usuario == null) return;
+
+          if (_idUsuarioDestino != usuario.id) {
+            flpChat.Controls.Clear();
+            _mensagensCarregadas = 0;
+            _idMensagemEmEdicao = 0;
+            txtMensagem.Text = string.Empty;
+          }
+
+          this.Tag = usuario.id;
+          lblConversaCom.Text = $"Para: {usuario.nome}";
+          _idUsuarioDestino = usuario.id;
+          CarregarMensagens(_idUsuarioDestino, 0, TAMANHO_PAGINA);
+        }
+      } catch (Exception ex) {
+        System.Diagnostics.Debug.WriteLine("Erro ao abrir conversa: " + ex);
+      }
     }
 
     private void ShowForm() {
@@ -306,6 +384,7 @@ namespace AxionChat.VIEW {
             txtMensagem.Text = string.Empty;
             // Adicionar lógica para mostrar a mensagem no chat visualmente (flpChat)
             AdicionarMensagemVisual(novaMsg, true, noTopo: true);
+            ScrollChatParaOFim();
           }
         }
       } catch (Exception ex) {
@@ -367,9 +446,7 @@ namespace AxionChat.VIEW {
               // Se houver mais mensagens, adiciona o botão "Ver mais" no topo (índice 0)
               VerificarBotaoVerMais(db, meuId, usuarioDestino);
 
-              // Rolar para o fim (última mensagem adicionada)
-              if (flpChat.Controls.Count > 0)
-                flpChat.ScrollControlIntoView(flpChat.Controls[flpChat.Controls.Count - 1]);
+              ScrollChatParaOFim();
             } else {
               // Carregando histórico (paginação) - Botão "Ver Mais" clicado
 
@@ -399,6 +476,7 @@ namespace AxionChat.VIEW {
             }
 
             _mensagensCarregadas += mensagens.Count;
+            AtualizarIndicadorNaoLidas(db, meuId);
           }
         }
       } catch (Exception ex) {
@@ -498,8 +576,7 @@ namespace AxionChat.VIEW {
 
       if (noTopo) {
         flpChat.Controls.SetChildIndex(uc, 0);
-        // Forçar scroll para o final
-        flpChat.ScrollControlIntoView(uc);
+        ScrollChatParaOFim();
       }
     }
 
@@ -621,25 +698,26 @@ namespace AxionChat.VIEW {
 
                 // Renderiza a mensagem no chat
                 AdicionarMensagemVisual(msg, false, noTopo: true);
+                ScrollChatParaOFim();
 
                 // Se a tela está visível mas por trás de outras janelas, mostrar alerta e piscar
                 if (!formAtivo) {
-                  Toast.Info($"Nova mensagem de {nomeRemetente} \r\n\r\n\"{msg.mensagem}\"", autoClose: false);
-                  FlashWindow(this.Handle, true);
+                  NotificarMensagemNova(nomeRemetente, msg.mensagem, msg.id_remetente, mostrarNoTray: false);
                 }
               }
               // Cenário 2: Chat fechado, minimizado ou aberto com outro usuário
               else {
-                // Mostrar notificação na tela
-                Toast.Info($"Nova mensagem de {nomeRemetente} \r\n\r\n\"{msg.mensagem}\"", autoClose: false);
-                FlashWindow(this.Handle, true);
+                bool mostrarNoTray = !this.Visible || this.WindowState == FormWindowState.Minimized || !this.ShowInTaskbar;
+                NotificarMensagemNova(nomeRemetente, msg.mensagem, msg.id_remetente, mostrarNoTray: mostrarNoTray);
               }
             }
             db.SaveChanges();
           }
+
+          AtualizarIndicadorNaoLidas(db, meuId);
         }
       } catch (Exception ex) {
-        // Silencioso no timer
+        System.Diagnostics.Debug.WriteLine("Erro no timer de mensagens: " + ex);
       } finally {
         tmrMessages.Enabled = true;
       }
